@@ -62,6 +62,8 @@ postcodeValidateUI <- function(id, extra_fields = TRUE){
     ))
   }
 
+  out
+
 }
 
 
