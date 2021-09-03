@@ -1,14 +1,15 @@
 #' Shiny module for address validation with Postcode API
+#' @description UI and Server module functions for PostCode API validation in Shiny applications.
 #' @param id Shiny input id
-#' @param input
-#' @param output
-#' @param session
+#' @param input Shiny parameter, do not set.
+#' @param output Shiny parameter, do not set.
+#' @param session Shiny parameter, do not set.
 #' @param extra_fields If TRUE, adds extra input fields 'huisletter' and 'huisnummertoevoeging',
 #' of which neither is used in address validation but will be added to the output.
 #' @details See \code{\link{postcode_validate}} on how to set the API key.
 #' @export
-#' @examples
 #' @rdname postcodeValidate
+#' @examples
 #' \dontrun{
 #'   library(shiny)
 #'
@@ -45,6 +46,9 @@ postcodeValidateUI <- function(id, extra_fields = TRUE){
     ),
     tags$br(),
     actionButton(ns("btn_validate"), "Zoeken", class = "btn-success", icon = icon("map-marker")),
+
+
+    uiOutput(ns("txt_validate_result"), style = "padding-top: 16px; padding-bottom: 16px;"),
 
     shinyjs::disabled(
       textInput(ns("txt_straatnaam"), "Straat"),
@@ -87,15 +91,31 @@ postcodeValidate <- function(input, output, session){
   observeEvent(validate_result(), {
 
     out <- validate_result()
-    updateTextInput(session, "txt_straatnaam", value = out$street)
-    updateTextInput(session, "txt_woonplaats", value = out$city)
+    if(!all(is.na(out))){
+      updateTextInput(session, "txt_straatnaam", value = out$street)
+      updateTextInput(session, "txt_woonplaats", value = out$city)
+    }
+
   })
 
+
+  output$txt_validate_result <- renderUI({
+    v <- validate_result()
+
+    if(is.null(v)){  # geen search gedaan
+      NULL
+    } else if(all(is.na(v))){   # niks gevonden
+      tags$p("Postcode / huisnummer niet gevonden.", style = "color: red;")
+    } else {  # iets gevonden
+      tags$p("Adres gevonden.", style = "color: green;")
+    }
+  })
 
   address_out <- reactive({
 
     lis <- validate_result()
-    if(is.null(lis)){
+
+    if(is.null(lis) || all(is.na(lis))){
       return(NULL)
     } else {
       c(lis, list(huisletter = input$txt_huisletter,
