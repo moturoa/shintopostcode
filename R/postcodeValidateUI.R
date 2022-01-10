@@ -51,8 +51,8 @@ postcodeValidateUI <- function(id, extra_fields = TRUE){
     uiOutput(ns("txt_validate_result"), style = "padding-top: 16px; padding-bottom: 16px;"),
 
     shinyjs::disabled(
-      textInput(ns("txt_straatnaam"), "Straat"),
-      textInput(ns("txt_woonplaats"), "Woonplaats")
+      textInput(ns("txt_straatnaam"), "Straat", width = "100%"),
+      textInput(ns("txt_woonplaats"), "Woonplaats", width = "100%")
     )
 
   )
