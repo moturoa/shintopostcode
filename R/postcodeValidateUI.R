@@ -41,12 +41,20 @@ postcodeValidateUI <- function(id, extra_fields = TRUE){
 
   out <- tagList(
     side_by_side(
-      textInput(ns("txt_postcode"), "Postcode", value = '', width = 100, placeholder = "1234AB"),
-      numericInput(ns("num_huisnummer"), "Huisnummer", value = '', width = 100)
+      shiny::textInput(ns("txt_postcode"), "Postcode", value = '', width = 100, placeholder = "1234AB"),
+      shiny::numericInput(ns("num_huisnummer"), "Huisnummer", value = '', width = 100)
     ),
     tags$br(),
-    actionButton(ns("btn_validate"), "Zoeken", class = "btn-success", icon = icon("map-marker")),
-
+    side_by_side(
+      shiny::actionButton(ns("btn_validate"), "Zoeken", class = "btn-success", icon = icon("map-marker")),
+      
+      tags$div(
+        style = "padding-top: 14px;",
+        shiny::actionLink(ns("lnk_reset"), tagList(shiny::icon("arrow-rotate-left"),"Reset"))  
+      )
+      
+    ),
+    
 
     uiOutput(ns("txt_validate_result"), style = "padding-top: 16px; padding-bottom: 16px;"),
 
@@ -73,10 +81,32 @@ postcodeValidateUI <- function(id, extra_fields = TRUE){
 
 #' @rdname postcodeValidate
 #' @export
-postcodeValidate <- function(input, output, session){
+postcodeValidate <- function(input, output, session, reset = reactive(NULL)){
 
   validate_result <- reactiveVal()
-
+  address_out <- reactiveVal()
+  
+  reset_inputs <- function(){
+    updateTextInput(session, "txt_postcode", value = "")
+    updateNumericInput(session, "num_huisnummer", value = NA)
+    
+    updateTextInput(session, "txt_straatnaam", value = "")
+    updateTextInput(session, "txt_woonplaats", value = "")
+    updateTextInput(session, "txt_huisletter", value = "")
+    updateTextInput(session, "txt_huisnummertoevoeging", value = "")
+    
+    validate_result(NULL)
+    address_out(NULL)
+  }
+  
+  observeEvent(reset(), {
+    reset_inputs()
+  })
+  
+  observeEvent(input$lnk_reset, {
+    reset_inputs()
+  })
+  
   observeEvent(input$btn_validate, {
 
     req(input$txt_postcode)
@@ -111,7 +141,9 @@ postcodeValidate <- function(input, output, session){
     }
   })
 
-  address_out <- reactive({
+  
+  
+  observeEvent(validate_result(), {
 
     lis <- validate_result()
 
@@ -121,6 +153,8 @@ postcodeValidate <- function(input, output, session){
       c(lis, list(huisletter = input$txt_huisletter,
                   huisnummertoevoeging = input$txt_huisnummertoevoeging))
     }
+    
+    address_out(lis)
 
 
   })
