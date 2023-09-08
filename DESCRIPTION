@@ -1,7 +1,7 @@
 Package: shintopostcode
 Type: Package
 Title: Validate Adress with the Postcode API
-Version: 0.3
+Version: 0.3.2
 Author: Remko Duursma
 Maintainer: Remko Duursma <remko@shintolabs.nl>
 Description: Wrapper function and Shiny module for address validation with the 

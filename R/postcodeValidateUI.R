@@ -109,10 +109,15 @@ postcodeValidate <- function(input, output, session, reset = reactive(NULL)){
   
   observeEvent(input$btn_validate, {
 
-    req(input$txt_postcode)
+    pc <- input$txt_postcode
+    req(pc)
+    
+    # remove all whitespace
+    pc <- gsub("[ \t\r\n]", "", pc)
+    
     req(input$num_huisnummer)
 
-    out <- postcode_validate(input$txt_postcode, input$num_huisnummer)
+    out <- postcode_validate(pc, input$num_huisnummer)
 
     validate_result(out)
   })
